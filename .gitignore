@@ -7,6 +7,8 @@
 serialwebviewer
 SerialWebViewer.mac
 SerialWebViewer-arm64.mac
+CHANGELOG.md
+PUBLISHING.md
 
 # Build directory
 build/
