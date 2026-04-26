@@ -2,10 +2,10 @@
 
 <div align="center">
 
-![SerialWebViewer](https://github.com/forqzy/SerialWebViewer/SerialPort1.PNG)
+![SerialWebViewer](./SerialPort1.PNG)
 ![Go](https://img.shields.io/badge/Go-1.19+-00ADD8?logo=go)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Platform](https://github.com/forqzy/SerialWebViewer/SerialPort2.PNG)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
 
 **一个现代化的串口日志查看工具**
 
