@@ -57,6 +57,45 @@ SerialWebViewer is a web-based serial port logging and viewing tool with real-ti
 - One-click log download
 - Latest files displayed first
 
+## 📥 Downloads
+
+### Latest Release: v1.0.0
+
+**Download from GitHub Releases:**
+👉 https://github.com/forqzy/SerialWebViewer/releases
+
+### Available Binaries
+
+| Platform | Binary | Size | Description |
+|----------|--------|------|-------------|
+| **Windows** | [SerialWebViewer.exe](https://github.com/forqzy/SerialWebViewer/releases/download/v1.0.0/SerialWebViewer.exe) | ~5 MB | Windows executable |
+| **Linux** | [serialwebviewer](https://github.com/forqzy/SerialWebViewer/releases/download/v1.0.0/serialwebviewer) | ~5 MB | Linux binary |
+| **macOS (Intel)** | [SerialWebViewer.mac](https://github.com/forqzy/SerialWebViewer/releases/download/v1.0.0/SerialWebViewer.mac) | ~5.5 MB | macOS Intel binary |
+| **macOS (ARM64)** | [SerialWebViewer-arm64.mac](https://github.com/forqzy/SerialWebViewer/releases/download/v1.0.0/SerialWebViewer-arm64.mac) | ~5.3 MB | macOS Apple Silicon binary |
+
+### Quick Start After Download
+
+**Windows:**
+1. Download `SerialWebViewer.exe`
+2. Double-click to run
+3. Open browser to `http://localhost:8088`
+
+**Linux/macOS:**
+```bash
+# Download and make executable
+chmod +x serialwebviewer  # or SerialWebViewer.mac
+
+# Run
+./serialwebviewer
+```
+
+Then open browser to `http://localhost:8088`
+
+### All Releases
+
+View all releases and previous versions:
+👉 https://github.com/forqzy/SerialWebViewer/releases
+
 ## 🚀 Quick Start
 
 ### Installation
