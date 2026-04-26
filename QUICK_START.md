@@ -1,6 +1,6 @@
-# 快速开始指南
+# Quick Start Guide
 
-## 运行程序
+## Running the Program
 
 ### Windows
 ```bash
@@ -9,55 +9,55 @@ SerialWebViewer.exe
 
 ### Linux/macOS
 ```bash
-chmod +x serialwebviewer  # 或 SerialWebViewer.mac
+chmod +x serialwebviewer  # or SerialWebViewer.mac
 ./serialwebviewer
 ```
 
-## 访问界面
+## Access the Interface
 
-启动程序后，在浏览器中打开：
+After launching the program, open in your browser:
 ```
 http://localhost:8088
 ```
 
-## 基本使用
+## Basic Usage
 
-### 1. 连接串口
-1. 点击右上角"配置"按钮
-2. 选择COM口和波特率
-3. 点击"连接"按钮
+### 1. Connect to Serial Port
+1. Click the "Config" button in the top right
+2. Select COM port and baud rate
+3. Click the "Connect" button
 
-### 2. 查看日志
-- 实时日志会自动显示在主界面
-- 可以切换HEX/文本模式
-- 可以显示/隐藏时间戳
+### 2. View Logs
+- Real-time logs are displayed in the main interface
+- Switch between HEX/Text modes
+- Show/hide timestamps
 
-### 3. 管理日志文件
-- 点击"文件"按钮展开历史文件列表
-- 可以查看、下载或删除历史日志
+### 3. Manage Log Files
+- Click the "Files" button to expand the historical file list
+- View, download, or delete historical logs
 
-### 4. 自定义主题
-1. 在主题选择器中选择"自定义"
-2. 调整背景色、文字色、时间戳色和字体大小
-3. 点击"完成"保存设置
+### 4. Customize Theme
+1. Select "Custom" from the theme selector
+2. Adjust background color, text color, timestamp color, and font size
+3. Click "Done" to save settings
 
-### 5. 切换语言
-- 点击状态栏的"EN"或"中文"按钮切换界面语言
+### 5. Switch Language
+- Click the "EN" or "中文" button in the status bar to switch interface language
 
-## 常见问题
+## FAQ
 
-**Q: 找不到串口？**
-A: 点击配置面板中的"刷新端口"按钮重新扫描。
+**Q: Can't find the serial port?**
+A: Click the "Refresh Ports" button in the configuration panel to rescan.
 
-**Q: 日志文件保存在哪里？**
-A: 日志文件保存在程序目录下的 `logs/` 文件夹中。
+**Q: Where are log files saved?**
+A: Log files are saved in the `logs/` folder in the program directory.
 
-**Q: 如何修改Web端口？**
-A: 启动时使用 `-port` 参数，例如：`SerialWebViewer.exe -port=9000`
+**Q: How to change the web port?**
+A: Use the `-port` parameter when launching: `SerialWebViewer.exe -port=9000`
 
-**Q: 支持多串口同时监控吗？**
-A: 当前版本仅支持单串口，多串口支持正在开发中。
+**Q: Does it support multi-port monitoring?**
+A: The current version only supports single port. Multi-port support is under development.
 
-## 技术支持
+## Technical Support
 
-如有问题，请访问：https://github.com/yourusername/SerialWebViewer/issues
+For issues, please visit: https://github.com/forqzy/SerialWebViewer/issues

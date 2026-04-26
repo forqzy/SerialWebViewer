@@ -7,147 +7,147 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
 
-**一个现代化的串口日志查看工具**
+**A Modern Web-based Serial Port Log Viewer**
 
-[功能特性](#功能特性) • [快速开始](#快速开始) • [使用说明](#使用说明) • [技术栈](#技术栈)
+[Features](#-features) • [Quick Start](#-quick-start) • [Usage](#-usage) • [Tech Stack](#-tech-stack)
 
 </div>
 
 ---
 
-## 📖 简介
+## 📖 About
 
-SerialWebViewer 是一个基于 Web 的串口日志记录和查看工具，支持实时监控串口数据、多主题切换、中英文界面，适用于嵌入式开发、硬件调试等场景。
+SerialWebViewer is a web-based serial port logging and viewing tool with real-time monitoring, multi-theme support, and bilingual interface (English/Chinese). It's perfect for embedded development, hardware debugging, and more.
 
-## ✨ 功能特性
+## ✨ Features
 
-### 🔌 串口管理
-- 支持多种波特率（9600-115200）
-- 可配置数据位、校验位、停止位
-- 支持 RTS/DTR 流控信号
-- 自动扫描可用串口
-- 配置自动保存
+### 🔌 Serial Port Management
+- Multiple baud rate support (9600-115200)
+- Configurable data bits, parity, stop bits
+- RTS/DTR flow control support
+- Auto-scan available serial ports
+- Auto-save configuration
 
-### 📊 日志功能
-- 实时日志显示（SSE推送）
-- 文本/HEX双模式显示
-- 可选时间戳显示
-- 日志自动保存到文件
-- 历史日志管理（查看、下载、删除）
+### 📊 Logging Features
+- Real-time log display (SSE push)
+- Text/HEX dual mode display
+- Optional timestamp display
+- Auto-save logs to files
+- Historical log management (view, download, delete)
 
-### 🎨 界面设计
-- **现代化 UI**：Apple 风格的白色主题
-- **多主题支持**：9种预设主题 + 自定义主题
-- **自定义外观**：背景色、文字色、时间戳色、字体大小均可调节
-- **响应式布局**：适配不同屏幕尺寸
-- **国际化**：完整的中英文界面
+### 🎨 Interface Design
+- **Modern UI**: Apple-style light theme
+- **Multi-theme Support**: 9 preset themes + custom theme
+- **Customizable**: Background, text, timestamp colors, and font size
+- **Responsive Layout**: Adapts to different screen sizes
+- **Internationalization**: Complete bilingual interface (EN/CN)
 
-### 💾 数据管理
-- 自动记录日志到文件
-- 文件按时间命名
-- 支持在线查看历史日志
-- 一键下载日志文件
-- 最新文件优先显示
+### 💾 Data Management
+- Auto-record logs to files
+- Time-stamped file naming
+- Online historical log viewing
+- One-click log download
+- Latest files displayed first
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 安装
+### Installation
 
 #### Windows
 ```bash
-# 编译
+# Build
 GOOS=windows GOARCH=amd64 go build -o SerialWebViewer.exe main.go
 
-# 运行
+# Run
 ./SerialWebViewer.exe
 ```
 
 #### Linux
 ```bash
-# 编译
+# Build
 go build -o serialwebviewer main.go
 
-# 运行
+# Run
 ./serialwebviewer
 ```
 
 #### macOS
 ```bash
-# 编译
+# Build
 GOOS=darwin GOARCH=amd64 go build -o SerialWebViewer.mac main.go
 
-# 运行
+# Run
 ./SerialWebViewer.mac
 ```
 
-### 使用
+### Usage
 
-1. 启动程序后，在浏览器中打开 `http://localhost:8088`
-2. 点击右上角"配置"按钮打开配置面板
-3. 选择串口和波特率，点击"连接"
-4. 实时查看串口数据
-5. 可切换显示模式、主题和语言
+1. Launch the program and open `http://localhost:8088` in your browser
+2. Click the "Config" button to open the configuration panel
+3. Select serial port and baud rate, then click "Connect"
+4. View real-time serial data
+5. Switch display modes, themes, and languages as needed
 
-## 📖 使用说明
+## 📖 Usage
 
-### 串口配置
-| 参数 | 说明 | 可选值 |
-|------|------|--------|
-| COM口 | 串口设备 | 自动扫描 |
-| 波特率 | 数据传输速率 | 9600/19200/38400/57600/115200 |
-| 数据位 | 数据位数 | 5/6/7/8 |
-| 校验位 | 校验方式 | None/Odd/Even |
-| 停止位 | 停止位数 | 1/2 |
-| RTS | 请求发送 | 开/关 |
-| DTR | 数据终端就绪 | 开/关 |
+### Serial Configuration
+| Parameter | Description | Options |
+|-----------|-------------|---------|
+| COM Port | Serial device | Auto-scan |
+| Baud Rate | Data rate | 9600/19200/38400/57600/115200 |
+| Data Bits | Data bits | 5/6/7/8 |
+| Parity | Parity check | None/Odd/Even |
+| Stop Bits | Stop bits | 1/2 |
+| RTS | Request to Send | On/Off |
+| DTR | Data Terminal Ready | On/Off |
 
-### 主题列表
-- **浅色**（默认）：白底黑字，适合日间使用
-- **默认**：深灰底，护眼模式
-- **Dracula**：紫色调深色主题
-- **Nord**：冷色调北欧风格
-- **Monokai**：经典深色主题
-- **Solarized Dark**：护眼色调
-- **GitHub Dark**：GitHub官方暗色
-- **One Dark**：Atom编辑器风格
-- **Material**：Material Design风格
-- **自定义**：完全自定义外观
+### Theme List
+- **Light** (Default): White background with black text, suitable for daytime
+- **Default**: Dark gray background, eye-protection mode
+- **Dracula**: Purple-toned dark theme
+- **Nord**: Cold-toned Nordic style
+- **Monokai**: Classic dark theme
+- **Solarized Dark**: Eye-protection colors
+- **GitHub Dark**: GitHub official dark theme
+- **One Dark**: Atom editor style
+- **Material**: Material Design style
+- **Custom**: Fully customizable appearance
 
-### 快捷键
-- 点击"配置"：打开/关闭配置面板
-- 点击"文件"：展开/收起历史文件列表
-- 选择主题：实时切换日志显示主题
+### Keyboard Shortcuts
+- Click "Config": Toggle configuration panel
+- Click "Files": Expand/collapse historical file list
+- Select theme: Real-time switch log display theme
 
-## 🛠️ 技术栈
+## 🛠️ Tech Stack
 
-- **后端**：Go 1.19+
-- **串口通信**：go.bug.st/serial
-- **前端**：原生 HTML/CSS/JavaScript
-- **UI框架**：Bootstrap 5
-- **图标**：Bootstrap Icons
-- **实时通信**：Server-Sent Events (SSE)
+- **Backend**: Go 1.19+
+- **Serial Communication**: go.bug.st/serial
+- **Frontend**: Vanilla HTML/CSS/JavaScript
+- **UI Framework**: Bootstrap 5
+- **Icons**: Bootstrap Icons
+- **Real-time Communication**: Server-Sent Events (SSE)
 
-## 📁 项目结构
+## 📁 Project Structure
 
 ```
 SerialWebViewer/
-├── main.go           # 主程序文件
-├── go.mod            # Go模块依赖
-├── go.sum            # 依赖校验文件
-├── logs/             # 日志文件目录
-├── LICENSE           # MIT许可证
-├── README.md         # 项目说明
-└── .gitignore        # Git忽略文件
+├── main.go           # Main program file
+├── go.mod            # Go module dependencies
+├── go.sum            # Dependency checksum
+├── logs/             # Log files directory
+├── LICENSE           # MIT License
+├── README.md         # Project documentation
+└── .gitignore        # Git ignore file
 ```
 
-## 🔧 开发
+## 🔧 Development
 
-### 依赖安装
+### Install Dependencies
 ```bash
 go get go.bug.st/serial
 ```
 
-### 编译
+### Build
 ```bash
 # Windows
 GOOS=windows GOARCH=amd64 go build -o SerialWebViewer.exe main.go
@@ -159,32 +159,32 @@ go build -o serialwebviewer main.go
 GOOS=darwin GOARCH=amd64 go build -o SerialWebViewer.mac main.go
 ```
 
-## 📝 待办事项
+## 📝 Roadmap
 
-- [ ] 添加多串口同时监控
-- [ ] 支持数据过滤和搜索
-- [ ] 添加数据导出功能（CSV、JSON）
-- [ ] 支持命令行参数配置
-- [ ] 添加用户配置导入/导出
-- [ ] 支持数据统计和图表
+- [ ] Multi-port simultaneous monitoring
+- [ ] Data filtering and search
+- [ ] Data export (CSV, JSON)
+- [ ] Command-line parameter support
+- [ ] Configuration import/export
+- [ ] Data statistics and charts
 
-## 🤝 贡献
+## 🤝 Contributing
 
-欢迎提交 Issue 和 Pull Request！
+Issues and Pull Requests are welcome!
 
-## 📄 许可证
+## 📄 License
 
-本项目采用 [MIT](LICENSE) 许可证。
+This project is licensed under the [MIT](LICENSE) License.
 
-## 👨‍💻 作者
+## 👨‍💻 Author
 
 **forqzy** - [GitHub](https://github.com/forqzy)
 
-## 🙏 致谢
+## 🙏 Acknowledgments
 
-- [go.bug.st/serial](https://github.com/bugst/go-serial) - 串口通信库
-- [Bootstrap](https://getbootstrap.com/) - UI框架
-- [Bootstrap Icons](https://icons.getbootstrap.com/) - 图标库
+- [go.bug.st/serial](https://github.com/bugst/go-serial) - Serial communication library
+- [Bootstrap](https://getbootstrap.com/) - UI framework
+- [Bootstrap Icons](https://icons.getbootstrap.com/) - Icon library
 
 ---
 
