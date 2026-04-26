@@ -1,3 +1,9 @@
+// SerialWebViewer - A modern web-based serial port log viewer
+// Copyright (c) 2025 forqzy <forqzy@gmail.com>
+//
+// MIT License
+// See LICENSE file for details
+
 package main
 
 import (
