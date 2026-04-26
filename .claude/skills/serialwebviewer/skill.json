@@ -1,0 +1,23 @@
+{
+  "name": "serialwebviewer",
+  "title": "SerialWebViewer",
+  "description": "Web-based serial port log viewer for monitoring, debugging, and managing serial port communications",
+  "author": "forqzy",
+  "version": "1.0.0",
+  "tags": [
+    "serial",
+    "com-port",
+    "logging",
+    "debugging",
+    "hardware",
+    "embedded",
+    "monitoring",
+    "web",
+    "api"
+  ],
+  "categories": [
+    "development-tools",
+    "hardware",
+    "debugging"
+  ]
+}
