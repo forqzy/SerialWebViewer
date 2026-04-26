@@ -176,6 +176,10 @@ GOOS=darwin GOARCH=amd64 go build -o SerialWebViewer.mac main.go
 
 本项目采用 [MIT](LICENSE) 许可证。
 
+## 👨‍💻 作者
+
+**forqzy** - [GitHub](https://github.com/forqzy)
+
 ## 🙏 致谢
 
 - [go.bug.st/serial](https://github.com/bugst/go-serial) - 串口通信库
@@ -186,6 +190,6 @@ GOOS=darwin GOARCH=amd64 go build -o SerialWebViewer.mac main.go
 
 <div align="center">
 
-**Made with ❤️ by SerialWebViewer Team**
+**Made with ❤️ by [forqzy](https://github.com/forqzy)**
 
 </div>
