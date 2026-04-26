@@ -6,6 +6,11 @@
 *.dylib
 serialwebviewer
 SerialWebViewer.mac
+SerialWebViewer-arm64.mac
+
+# Build directory
+build/
+dist/
 
 # Test binary, built with `go test -c`
 *.test
