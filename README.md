@@ -42,6 +42,14 @@ SerialWebViewer is a web-based serial port logging and viewing tool with real-ti
 - **Responsive Layout**: Adapts to different screen sizes
 - **Internationalization**: Complete bilingual interface (EN/CN)
 
+#### Screenshots
+
+**Main Interface**
+![Main Interface](./SerialPort1.PNG)
+
+**Configuration Panel**
+![Configuration](./SerialPort2.PNG)
+
 ### 💾 Data Management
 - Auto-record logs to files
 - Time-stamped file naming
