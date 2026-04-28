@@ -8,6 +8,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -44,6 +45,7 @@ var (
 	clients       = make(map[*http.ResponseWriter]bool)
 	clientsMu     sync.Mutex
 	hexMode       = false // 后端HEX模式状态
+	stopLogging   = make(chan struct{}) // 用于停止日志记录协程
 )
 
 // PortConfig 串口配置结构
@@ -248,16 +250,20 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
             padding: 16px;
             flex: 1;
             overflow-y: auto;
+            overflow-x: auto;
             font-family: 'SF Mono', 'Monaco', 'Consolas', 'Courier New', monospace;
             font-size: 13px;
             line-height: 1.6;
             border: 1px solid rgba(0, 0, 0, 0.12);
             border-radius: 8px;
             margin: 0 16px 16px 16px;
+            white-space: pre-wrap;
+            word-break: keep-all;
         }
         .log-entry {
             margin-bottom: 2px;
-            word-wrap: break-word;
+            display: block;
+            white-space: pre;
         }
         .log-timestamp {
             color: #0a84ff;
@@ -945,6 +951,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
         let autoScroll = true;
         let hexMode = false; // HEX显示模式
         let showTimestamp = false; // 是否显示时间戳
+        let receiveBuffer = ''; // 接收缓冲区，用于合并分片数据
 
         // 侧边栏切换
         function toggleSidebar() {
@@ -1679,7 +1686,17 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
                 try {
                     const data = JSON.parse(event.data);
                     if (data.type === 'log') {
-                        appendLog(data.content, data.hex);
+                        // 解码Base64数据
+                        const decodedContent = atob(data.content);
+                        const decodedHex = atob(data.hex);
+
+                        // 调试：显示接收到的数据长度
+                        if (decodedContent.length > 50) {
+                            console.log('📥 收到SSE消息，长度:', decodedContent.length, '预览:', decodedContent.substring(0, 50) + '...');
+                        }
+
+                        // 后端可能发送不完整的行（被SSE分片），需要缓冲
+                        appendLog(decodedContent, decodedHex);
                     } else if (data.type === 'info') {
                         console.log('Info:', data.content);
                     }
@@ -1708,27 +1725,68 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
         function appendLog(message, hexMessage) {
             const now = new Date();
             const timestamp = now.toLocaleTimeString('zh-CN', { hour12: false });
-            const logEntry = document.createElement('div');
-            logEntry.className = 'log-entry';
 
-            let displayContent = message;
-            if (hexMode && hexMessage) {
-                // 使用后端生成的HEX，避免UTF-8编码问题
-                displayContent = hexMessage;
+            // 将SSE消息添加到缓冲区（SSE可能会把长行分片发送）
+            receiveBuffer += message;
+
+            // 统一换行符
+            receiveBuffer = receiveBuffer.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+            // 按换行符分割，保留最后一个不完整的行
+            const lines = receiveBuffer.split('\n');
+            receiveBuffer = lines.pop() || ''; // 保留最后可能不完整的行
+
+            // 显示所有完整的行
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                if (line === '') continue; // 跳过空行
+
+                // 移除ANSI转义序列
+                line = removeAnsiCodes(line);
+
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+
+                let displayContent = line;
+                if (hexMode && hexMessage) {
+                    // HEX模式下，对整行进行处理
+                    displayContent = formatHexLine(line);
+                }
+
+                // 根据showTimestamp决定是否显示时间戳
+                if (showTimestamp) {
+                    const timestampSpan = document.createElement('span');
+                    timestampSpan.className = 'log-timestamp';
+                    timestampSpan.textContent = '[' + timestamp + '] ';
+                    logEntry.appendChild(timestampSpan);
+
+                    const contentSpan = document.createElement('span');
+                    contentSpan.textContent = displayContent;
+                    logEntry.appendChild(contentSpan);
+                } else {
+                    logEntry.textContent = displayContent;
+                }
+
+                logDisplay.appendChild(logEntry);
             }
-
-            // 根据showTimestamp决定是否显示时间戳
-            if (showTimestamp) {
-                logEntry.innerHTML = '<span class="log-timestamp">[' + timestamp + ']</span> ' + escapeHtml(displayContent);
-            } else {
-                logEntry.innerHTML = escapeHtml(displayContent);
-            }
-
-            logDisplay.appendChild(logEntry);
 
             if (autoScroll) {
                 logDisplay.scrollTop = logDisplay.scrollHeight;
             }
+        }
+
+        // HEX模式下的单行格式化
+        function formatHexLine(line) {
+            let hexResult = '';
+            for (let i = 0; i < line.length; i++) {
+                const charCode = line.charCodeAt(i);
+                const hex = charCode.toString(16).toUpperCase().padStart(2, '0');
+                hexResult += hex + ' ';
+                if ((i + 1) % 16 === 0) {
+                    hexResult += '\n';
+                }
+            }
+            return hexResult.trim();
         }
 
         function escapeHtml(text) {
@@ -1737,8 +1795,18 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
             return div.innerHTML;
         }
 
+        // 移除ANSI转义序列（ESP32日志中的颜色代码）
+        function removeAnsiCodes(text) {
+            // 移除ANSI转义序列，包括ESC[...m格式的颜色代码
+            // ESC字符的ASCII码是27，用\x1b表示
+            // 模式匹配：ESC后跟[，然后是数字和分号，最后以m结尾
+            return text.replace(/\x1b\[[0-9;]*[a-zA-Z]/g, '')
+                       .replace(/\x1b\[[0-9;]*m/g, '');  // 额外的保险，处理单独的m
+        }
+
         function clearLogDisplay() {
             logDisplay.innerHTML = '';
+            receiveBuffer = ''; // 清空缓冲区
         }
 
         function scrollToBottom() {
@@ -2132,6 +2200,9 @@ func connectHandler(w http.ResponseWriter, r *http.Request) {
 	logFile = file
 	logWriter = bufio.NewWriter(file)
 
+	// 重新创建停止信号通道
+	stopLogging = make(chan struct{})
+
 	// 启动日志记录协程
 	go startLogging()
 
@@ -2155,9 +2226,9 @@ func disconnectHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mu.Lock()
-	defer mu.Unlock()
 
 	if !isConnected {
+		mu.Unlock()
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"success": false,
@@ -2166,18 +2237,38 @@ func disconnectHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 先设置isConnected为false，停止日志记录
+	isConnected = false
+	mu.Unlock()
+
+	// 发送停止信号给日志记录协程
+	select {
+	case stopLogging <- struct{}{}:
+		log.Println("📤 已发送停止信号给日志记录协程")
+	default:
+		log.Println("⚠️  停止信号通道已满，协程可能已退出")
+	}
+
+	// 等待一小段时间让协程退出
+	time.Sleep(100 * time.Millisecond)
+
+	mu.Lock()
+	defer mu.Unlock()
+
 	// 关闭连接
 	if logWriter != nil {
 		logWriter.Flush()
+		logWriter = nil
 	}
 	if logFile != nil {
 		logFile.Close()
+		logFile = nil
 	}
 	if currentPort != nil {
 		currentPort.Close()
+		currentPort = nil
 	}
 
-	isConnected = false
 	log.Printf("🔌 已断开串口连接")
 
 	// 通知所有客户端
@@ -2305,9 +2396,9 @@ func viewLogHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 安全检查：确保文件在logs目录下
 	filename = filepath.Base(filename)
-	filepath := filepath.Join("logs", filename)
+	filePath := filepath.Join("logs", filename)
 
-	content, err := os.ReadFile(filepath)
+	content, err := os.ReadFile(filePath)
 	if err != nil {
 		http.Error(w, "无法读取文件", http.StatusNotFound)
 		return
@@ -2348,10 +2439,10 @@ func downloadLogHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 安全检查
 	filename = filepath.Base(filename)
-	filepath := filepath.Join("logs", filename)
+	filePath := filepath.Join("logs", filename)
 
 	// 打开文件
-	file, err := os.Open(filepath)
+	file, err := os.Open(filePath)
 	if err != nil {
 		http.Error(w, "无法打开文件", http.StatusNotFound)
 		return
@@ -2392,9 +2483,9 @@ func deleteLogHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 安全检查
 	filename = filepath.Base(filename)
-	filepath := filepath.Join("logs", filename)
+	filePath := filepath.Join("logs", filename)
 
-	if err := os.Remove(filepath); err != nil {
+	if err := os.Remove(filePath); err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"success": false,
@@ -2480,57 +2571,76 @@ func startLogging() {
 		if r := recover(); r != nil {
 			log.Printf("日志记录协程panic: %v", r)
 		}
+		log.Printf("📝 日志记录协程已退出")
 	}()
 
 	buffer := make([]byte, 4096)
 
 	log.Printf("📝 开始记录日志到: %s", logFile.Name())
 
-	for isConnected {
-		n, err := currentPort.Read(buffer)
-		if err != nil {
-			if isConnected {
-				log.Printf("❌ 串口读取错误: %v", err)
-			}
-			break
-		}
-
-		if n > 0 {
-			// 获取原始字节数据
-			dataBytes := buffer[:n]
-			data := string(dataBytes)
-
-			// 生成HEX字符串（直接从字节，避免UTF-8编码问题）
-			hexStr := bytesToHex(dataBytes)
-
-			// 根据HEX模式决定写入文件的格式
+	for {
+		select {
+		case <-stopLogging:
+			log.Printf("🛑 收到停止信号，退出日志记录")
+			return
+		default:
+			// 检查连接状态
 			mu.Lock()
-			currentHexMode := hexMode
+			connected := isConnected
+			port := currentPort
 			mu.Unlock()
 
-			var logEntry string
-			if currentHexMode {
-				// HEX模式：只写入HEX字符串，不带时间戳
-				logEntry = hexStr + "\n"
-			} else {
-				// 文本模式：带时间戳的原始数据
-				timestamp := time.Now().Format("2006-01-02 15:04:05.000")
-				logEntry = fmt.Sprintf("[%s] %s", timestamp, data)
+			if !connected || port == nil {
+				log.Printf("⚠️  连接已断开，退出日志记录")
+				return
 			}
 
-			// 写入文件
-			mu.Lock()
-			if logWriter != nil {
-				logWriter.WriteString(logEntry)
-				logWriter.Flush()
+			// 设置读取超时，避免永久阻塞
+			n, err := port.Read(buffer)
+			if err != nil {
+				mu.Lock()
+				if isConnected {
+					log.Printf("❌ 串口读取错误: %v", err)
+				}
+				mu.Unlock()
+				return
 			}
-			mu.Unlock()
 
-			// 打印到控制台
-			fmt.Print(data)
+			if n > 0 {
+				// 直接读取原始字节并立即发送，不做任何处理
+				dataBytes := buffer[:n]
+				data := string(dataBytes)
 
-			// 广播原始数据和HEX到前端
-			broadcastToClients(data, hexStr)
+				// 生成HEX
+				hexStr := bytesToHex(dataBytes)
+
+				// 根据HEX模式决定写入文件的格式
+				mu.Lock()
+				currentHexMode := hexMode
+				mu.Unlock()
+
+				var logEntry string
+				if currentHexMode {
+					logEntry = hexStr
+				} else {
+					timestamp := time.Now().Format("2006-01-02 15:04:05.000")
+					logEntry = fmt.Sprintf("[%s] %s", timestamp, data)
+				}
+
+				// 写入文件
+				mu.Lock()
+				if logWriter != nil {
+					logWriter.WriteString(logEntry)
+					logWriter.Flush()
+				}
+				mu.Unlock()
+
+				// 打印到控制台
+				fmt.Print(data)
+
+				// 直接发送原始数据到前端，让前端处理
+				broadcastToClients(data, hexStr)
+			}
 		}
 	}
 }
@@ -2540,20 +2650,17 @@ func broadcastToClients(data string, hexData string) {
 	clientsMu.Lock()
 	defer clientsMu.Unlock()
 
-	// 使用json.Marshal确保正确的JSON编码
-	jsonData := map[string]string{
-		"type":    "log",
-		"content": data,
-		"hex":     hexData,
+	// 检查数据长度
+	if len(data) > 100 {
+		log.Printf("📤 发送原始数据: %d 字符, 预览: %q...", len(data), data[:min(50, len(data))])
 	}
 
-	jsonBytes, err := json.Marshal(jsonData)
-	if err != nil {
-		log.Printf("JSON编码失败: %v", err)
-		return
-	}
+	// 直接发送原始文本，不用JSON（避免JSON转义问题）
+	// 使用Base64编码确保二进制安全
+	encoded := base64.StdEncoding.EncodeToString([]byte(data))
+	encodedHex := base64.StdEncoding.EncodeToString([]byte(hexData))
 
-	message := fmt.Sprintf("data: %s\n\n", string(jsonBytes))
+	message := fmt.Sprintf("data: {\"type\":\"log\",\"content\":\"%s\",\"hex\":\"%s\"}\n\n", encoded, encodedHex)
 
 	for client := range clients {
 		fmt.Fprintf(*client, message)
@@ -2561,6 +2668,13 @@ func broadcastToClients(data string, hexData string) {
 			flusher.Flush()
 		}
 	}
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 // 字节数组转HEX字符串（避免UTF-8编码问题）
